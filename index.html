@@ -1,0 +1,1938 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IR Quiz — Information Retrieval</title>
+
+  <!-- ============================================================
+     FONTS
+     ============================================================ -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* ============================================================
+   CSS VARIABLES & RESET
+   ============================================================ */
+    :root {
+      --bg: #0c0f1a;
+      --surface: #141828;
+      --card: #1c2235;
+      --border: #2a3250;
+      --accent: #5b8dee;
+      --accent2: #e85d8a;
+      --gold: #f5c542;
+      --green: #3dd68c;
+      --red: #f25c5c;
+      --text: #e8ecf5;
+      --muted: #7a86a8;
+      --radius: 14px;
+      --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* animated background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(91, 141, 238, .04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(91, 141, 238, .04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* glow blobs */
+    body::after {
+      content: '';
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(91, 141, 238, .12) 0%, transparent 70%);
+      top: -200px;
+      left: -200px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ============================================================
+   SCREENS (only one visible at a time)
+   ============================================================ */
+    .screen {
+      display: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    /* ============================================================
+   WELCOME SCREEN
+   ============================================================ */
+    #welcome {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    #welcome.active {
+      display: flex;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(91, 141, 238, .12);
+      border: 1px solid rgba(91, 141, 238, .3);
+      border-radius: 99px;
+      padding: .35rem 1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: .75rem;
+      color: var(--accent);
+      letter-spacing: .08em;
+      margin-bottom: 2rem;
+      animation: fadeDown .6s ease both;
+    }
+
+    .welcome-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -.03em;
+      margin-bottom: 1rem;
+      animation: fadeDown .6s .1s ease both;
+    }
+
+    .welcome-title span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .welcome-sub {
+      color: var(--muted);
+      font-size: 1.1rem;
+      font-weight: 300;
+      max-width: 480px;
+      line-height: 1.6;
+      margin-bottom: 3rem;
+      animation: fadeDown .6s .2s ease both;
+    }
+
+    .mode-cards {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeDown .6s .3s ease both;
+    }
+
+    .mode-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem 2.25rem;
+      cursor: pointer;
+      width: 260px;
+      text-align: left;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mode-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(91, 141, 238, .08), transparent);
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .mode-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+    }
+
+    .mode-card:hover::before {
+      opacity: 1;
+    }
+
+    .mode-card.alt:hover {
+      border-color: var(--accent2);
+    }
+
+    .mode-card.alt::before {
+      background: linear-gradient(135deg, rgba(232, 93, 138, .08), transparent);
+    }
+
+    .mode-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .mode-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      margin-bottom: .5rem;
+    }
+
+    .mode-card p {
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.55;
+    }
+
+    .mode-tag {
+      display: inline-block;
+      margin-top: .75rem;
+      font-family: 'DM Mono', monospace;
+      font-size: .7rem;
+      color: var(--accent);
+      background: rgba(91, 141, 238, .1);
+      border-radius: 99px;
+      padding: .2rem .65rem;
+    }
+
+    .mode-card.alt .mode-tag {
+      color: var(--accent2);
+      background: rgba(232, 93, 138, .1);
+    }
+
+    /* ============================================================
+   CHAPTER SELECT SCREEN
+   ============================================================ */
+    #chapter-select {
+      min-height: 100vh;
+      padding: 3rem 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    #chapter-select.active {
+      display: block;
+    }
+
+    .screen-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .back-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: .5rem 1.1rem;
+      color: var(--muted);
+      font-size: .85rem;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: 'DM Sans', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+
+    .back-btn:hover {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+
+    .screen-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .chapters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    .chapter-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chapter-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    .chapter-number {
+      font-family: 'DM Mono', monospace;
+      font-size: .7rem;
+      color: var(--accent);
+      letter-spacing: .1em;
+      margin-bottom: .5rem;
+    }
+
+    .chapter-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: .35rem;
+      line-height: 1.3;
+    }
+
+    .chapter-card .q-count {
+      font-size: .8rem;
+      color: var(--muted);
+    }
+
+    .chapter-accent-bar {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(to bottom, var(--accent), var(--accent2));
+      border-radius: 3px 0 0 3px;
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .chapter-card:hover .chapter-accent-bar {
+      opacity: 1;
+    }
+
+    /* ============================================================
+   QUIZ SCREEN
+   ============================================================ */
+    #quiz {
+      min-height: 100vh;
+      padding: 2rem;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    #quiz.active {
+      display: block;
+    }
+
+    .quiz-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .quiz-chapter-label {
+      font-family: 'DM Mono', monospace;
+      font-size: .75rem;
+      color: var(--muted);
+      letter-spacing: .08em;
+    }
+
+    .quiz-score-badge {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: .4rem 1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: .8rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .score-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    /* Progress bar */
+    .progress-wrap {
+      background: var(--card);
+      border-radius: 99px;
+      height: 6px;
+      margin-bottom: 2.5rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 99px;
+      transition: width .4s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    /* Question card */
+    .question-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 2rem 2.25rem;
+      margin-bottom: 1.5rem;
+      animation: slideUp .35s ease;
+    }
+
+    .q-meta {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .q-num {
+      font-family: 'DM Mono', monospace;
+      font-size: .7rem;
+      color: var(--accent);
+      background: rgba(91, 141, 238, .1);
+      border-radius: 99px;
+      padding: .25rem .7rem;
+      letter-spacing: .06em;
+    }
+
+    .q-type-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: .68rem;
+      color: var(--gold);
+      background: rgba(245, 197, 66, .1);
+      border-radius: 99px;
+      padding: .25rem .7rem;
+      letter-spacing: .06em;
+    }
+
+    .question-text {
+      font-size: 1.05rem;
+      line-height: 1.65;
+      font-weight: 400;
+      color: var(--text);
+    }
+
+    /* Options */
+    .options-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .7rem;
+    }
+
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .9rem 1.2rem;
+      color: var(--text);
+      font-size: .93rem;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: flex-start;
+      gap: .85rem;
+      line-height: 1.5;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: rgba(91, 141, 238, .07);
+    }
+
+    /* Multi-select checkbox style */
+    .option-btn.multi {
+      border-radius: 10px;
+    }
+
+    .option-check {
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      margin-top: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      font-size: .7rem;
+    }
+
+    .option-btn.single .option-check {
+      border-radius: 50%;
+    }
+
+    .option-btn.selected .option-check {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .option-btn.selected {
+      border-color: var(--accent);
+      background: rgba(91, 141, 238, .1);
+    }
+
+    /* Feedback states */
+    .option-btn.correct {
+      border-color: var(--green) !important;
+      background: rgba(61, 214, 140, .1) !important;
+      color: var(--green);
+    }
+
+    .option-btn.correct .option-check {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    .option-btn.wrong {
+      border-color: var(--red) !important;
+      background: rgba(242, 92, 92, .08) !important;
+      color: var(--red);
+    }
+
+    .option-btn.wrong .option-check {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+    }
+
+    .option-btn.show-correct {
+      border-color: var(--green) !important;
+      background: rgba(61, 214, 140, .06) !important;
+    }
+
+    .option-btn.show-correct .option-check {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    /* Feedback banner */
+    .feedback-banner {
+      border-radius: 10px;
+      padding: .85rem 1.2rem;
+      margin-bottom: 1.25rem;
+      font-size: .9rem;
+      font-weight: 500;
+      display: none;
+      align-items: center;
+      gap: .6rem;
+      animation: slideUp .25s ease;
+    }
+
+    .feedback-banner.show {
+      display: flex;
+    }
+
+    .feedback-banner.correct {
+      background: rgba(61, 214, 140, .12);
+      color: var(--green);
+      border: 1px solid rgba(61, 214, 140, .3);
+    }
+
+    .feedback-banner.wrong {
+      background: rgba(242, 92, 92, .1);
+      color: var(--red);
+      border: 1px solid rgba(242, 92, 92, .25);
+    }
+
+    /* Quiz bottom bar */
+    .quiz-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #7b6fe8);
+      border: none;
+      border-radius: 99px;
+      padding: .8rem 2rem;
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: .95rem;
+      cursor: pointer;
+      transition: var(--transition);
+      letter-spacing: .02em;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(91, 141, 238, .35);
+    }
+
+    .btn-primary:disabled {
+      opacity: .4;
+      cursor: default;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Submit button for multi-select */
+    #submit-btn {
+      background: linear-gradient(135deg, var(--gold), #e8932a);
+      margin-right: auto;
+    }
+
+    /* ============================================================
+   RESULT SCREEN
+   ============================================================ */
+    #result {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    #result.active {
+      display: flex;
+    }
+
+    .result-ring {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: conic-gradient(var(--accent) 0%, transparent 0%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2rem;
+      position: relative;
+      animation: ringIn .8s ease both;
+    }
+
+    .result-ring::before {
+      content: '';
+      position: absolute;
+      inset: 10px;
+      border-radius: 50%;
+      background: var(--bg);
+    }
+
+    .result-score-text {
+      position: relative;
+      z-index: 1;
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+    }
+
+    .result-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: .75rem;
+    }
+
+    .result-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-bottom: 2rem;
+      max-width: 400px;
+      line-height: 1.6;
+    }
+
+    .result-stats {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .stat-chip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      min-width: 100px;
+    }
+
+    .stat-chip .val {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      display: block;
+    }
+
+    .stat-chip .lbl {
+      font-size: .78rem;
+      color: var(--muted);
+      margin-top: .25rem;
+      display: block;
+    }
+
+    .stat-chip.green .val {
+      color: var(--green);
+    }
+
+    .stat-chip.red .val {
+      color: var(--red);
+    }
+
+    .stat-chip.blue .val {
+      color: var(--accent);
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-secondary {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: .8rem 2rem;
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: .95rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    /* ============================================================
+   ANIMATIONS
+   ============================================================ */
+    @keyframes fadeDown {
+      from {
+        opacity: 0;
+        transform: translateY(-16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes ringIn {
+      from {
+        transform: scale(.7);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* ============================================================
+   RESPONSIVE
+   ============================================================ */
+    @media (max-width: 540px) {
+      .question-card {
+        padding: 1.5rem 1.25rem;
+      }
+
+      .mode-card {
+        width: 100%;
+        max-width: 340px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================================================
+     SCREEN 1: WELCOME — Choose mode
+     ============================================================ -->
+  <section id="welcome" class="screen active">
+    <span class="logo-badge">📚 IR QUIZ · NPTEL</span>
+    <h1 class="welcome-title">Information<br><span>Retrieval</span></h1>
+    <p class="welcome-sub">125 questions across 12 weekly assignments. Test your knowledge of IR concepts, algorithms,
+      and systems.</p>
+    <div class="mode-cards">
+      <div class="mode-card" onclick="showChapterSelect()">
+        <span class="mode-icon">📖</span>
+        <h3>Chapter-wise Quiz</h3>
+        <p>Pick a specific week/assignment and practice just those questions.</p>
+        <span class="mode-tag">12 chapters</span>
+      </div>
+      <div class="mode-card alt" onclick="startFullQuiz()">
+        <span class="mode-icon">🚀</span>
+        <h3>Full Assignment Quiz</h3>
+        <p>All 125 questions in order — the complete end-to-end challenge.</p>
+        <span class="mode-tag">125 questions</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+     SCREEN 2: CHAPTER SELECT
+     ============================================================ -->
+  <section id="chapter-select" class="screen">
+    <div class="screen-header">
+      <button class="back-btn" onclick="showScreen('welcome')">← Back</button>
+      <h2 class="screen-title">Choose a Chapter</h2>
+    </div>
+    <div class="chapters-grid" id="chapters-grid">
+      <!-- Populated by JS -->
+    </div>
+  </section>
+
+  <!-- ============================================================
+     SCREEN 3: QUIZ
+     ============================================================ -->
+  <section id="quiz" class="screen">
+    <div class="quiz-topbar">
+      <button class="back-btn" onclick="confirmBack()">← Exit</button>
+      <span class="quiz-chapter-label" id="quiz-chapter-label">WEEK 1 · ASSIGNMENT 1</span>
+      <div class="quiz-score-badge">
+        <span class="score-dot"></span>
+        Score: <span id="score-display">0</span>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+
+    <div class="question-card">
+      <div class="q-meta">
+        <span class="q-num" id="q-num">Q 1 / 10</span>
+        <span class="q-type-badge" id="q-type-badge" style="display:none">MULTI-SELECT</span>
+      </div>
+      <p class="question-text" id="question-text">Loading…</p>
+    </div>
+
+    <ul class="options-list" id="options-list"></ul>
+
+    <div class="feedback-banner" id="feedback-banner"></div>
+
+    <div class="quiz-bottom">
+      <button class="btn-primary" id="submit-btn" onclick="submitMulti()" style="display:none">✓ Submit Answer</button>
+      <button class="btn-primary" id="next-btn" onclick="nextQuestion()" disabled style="margin-top: 16px;">Next
+        →</button>
+    </div>
+  </section>
+
+  <!-- ============================================================
+     SCREEN 4: RESULT
+     ============================================================ -->
+  <section id="result" class="screen">
+    <div class="result-ring" id="result-ring">
+      <span class="result-score-text" id="result-pct">0%</span>
+    </div>
+    <h2 class="result-title" id="result-title">Well done!</h2>
+    <p class="result-sub" id="result-sub">You completed the quiz.</p>
+    <div class="result-stats">
+      <div class="stat-chip green"><span class="val" id="res-correct">0</span><span class="lbl">Correct</span></div>
+      <div class="stat-chip red"> <span class="val" id="res-wrong">0</span> <span class="lbl">Wrong</span></div>
+      <div class="stat-chip blue"> <span class="val" id="res-total">0</span> <span class="lbl">Total</span></div>
+    </div>
+    <div class="result-actions">
+      <button class="btn-secondary" onclick="retryQuiz()">↺ Try Again</button>
+      <button class="btn-secondary" onclick="showChapterSelect()">📖 Chapters</button>
+      <button class="btn-primary" onclick="showScreen('welcome')">🏠 Home</button>
+    </div>
+  </section>
+
+  <!-- ============================================================
+     ALL 125 QUESTIONS — hardcoded data
+     
+     Format per question:
+       q   : question text
+       opts: array of answer options
+       ans : correct answer(s) — string for single, array for multi-select
+       multi: true if multiple answers required
+     ============================================================ -->
+  <script>
+
+    /* ----------------------------------------------------------------
+       QUESTION BANK
+       Each chapter = one object with title and questions array.
+       ---------------------------------------------------------------- */
+    const CHAPTERS = [
+
+      /* ====================================================
+         CHAPTER 1 — Week 1: Introduction & Boolean Retrieval
+         ==================================================== */
+      {
+        title: "Introduction to IR & Boolean Retrieval",
+        questions: [
+          {
+            q: "What is the primary goal of Information Retrieval (IR)?",
+            opts: ["To structure databases", "To seek out unstructured documents that satisfy a user's information need", "To perform numerical computations", "To design user interfaces"],
+            ans: "To seek out unstructured documents that satisfy a user's information need"
+          },
+          {
+            q: "What does the term stopword refer to in IR?",
+            opts: ["Words that are rare in documents", "Words that are always capitalized", "Technical terms in a document", "Commonly used words that do not contribute significantly to content understanding"],
+            ans: "Commonly used words that do not contribute significantly to content understanding"
+          },
+          {
+            q: "What is the main difference between controlled vocabulary and free-text vocabulary?",
+            opts: ["Controlled vocabulary uses human-assigned topics; free-text uses terms from the document", "Controlled vocabulary is cheaper to implement", "Free-text vocabulary is more ambiguous", "Controlled vocabulary has predefined terms; free-text vocabulary is more flexible and allows any terms."],
+            ans: ["Controlled vocabulary uses human-assigned topics; free-text uses terms from the document", "Free-text vocabulary is more ambiguous", "Controlled vocabulary has predefined terms; free-text vocabulary is more flexible and allows any terms."],
+            multi: true
+          },
+          {
+            q: "In query optimization for Boolean retrieval, the best practice is to process terms:",
+            opts: ["In alphabetical order", "In order of increasing document frequency", "In order of decreasing document frequency", "Randomly"],
+            ans: "In order of increasing document frequency"
+          },
+          {
+            q: "A key disadvantage of controlled vocabulary is:",
+            opts: ["Too many terms", "Cannot be used for indexing", "Expensive and time-consuming", "Cannot represent topic details"],
+            ans: "Expensive and time-consuming"
+          },
+          {
+            q: "Ad hoc IR means:",
+            opts: ["Using SQL to retrieve documents", "Retrieval done with unlimited queries", "Retrieval evaluated using a finite set of queries", "No evaluation is needed"],
+            ans: "Retrieval evaluated using a finite set of queries"
+          },
+          {
+            q: "What is a major drawback of using grep-like linear scanning for IR on large collections?",
+            opts: ["It cannot handle Boolean queries", "It is efficient for ranked retrieval", "It supports proximity queries well", "It requires scanning the entire collection for each query term"],
+            ans: "It requires scanning the entire collection for each query term"
+          },
+          {
+            q: "Which of the following are stored in the dictionary of an inverted index?",
+            opts: ["The actual term", "Document frequency", "Position of term in each document", "Pointer to the start of the posting list"],
+            ans: ["The actual term", "Document frequency", "Pointer to the start of the posting list"],
+            multi: true
+          },
+          {
+            q: "You have two posting lists: T₁ = [3, 10, 24, 40] and T₂ = [1, 10, 15, 24, 35, 40]. How many comparisons occur during a standard AND merge?",
+            opts: ["6", "7", "8", "9"],
+            ans: "7"
+          },
+          {
+            q: "Let us assume two posting list sizes for words 'A' and 'B' are |A| = 1200 and |B| = 300. Then what will be the size of A AND B?",
+            opts: ["36", "1200", "300", "90"],
+            ans: "300"
+          }
+        ]
+      },
+
+      /* ====================================================
+         CHAPTER 2 — Week 2: Index Construction & Compression
+         ==================================================== */
+      {
+        title: "Index Construction & Compression",
+        questions: [
+          {
+            q: "What is document frequency?",
+            opts: ["Number of times a term occurs in a document", "Number of documents containing the term", "Total occurrences of a term in the corpus", "Number of tokens in a document"],
+            ans: "Number of documents containing the term"
+          },
+          {
+            q: "Posting lists may store:",
+            opts: ["DocIDs", "Document lengths", "Term frequencies", "Term positions"],
+            ans: ["DocIDs", "Term frequencies", "Term positions"],
+            multi: true
+          },
+          {
+            q: "Zipf's law relates:",
+            opts: ["Term frequency vs document length", "Document rank vs popularity", "Posting length vs dictionary size", "Term rank vs frequency"],
+            ans: "Term rank vs frequency"
+          },
+          {
+            q: "Heaps' law predicts:",
+            opts: ["Vocabulary size as a function of corpus size", "Posting list compression ratio", "Query popularity distribution", "Document frequency growth"],
+            ans: "Vocabulary size as a function of corpus size"
+          },
+          {
+            q: "Which dictionary implementation supports prefix/wildcard queries efficiently?",
+            opts: ["Hash-based dictionary", "SPIMI dictionary", "Sort-based dictionary", "Binary heap dictionary"],
+            ans: "Sort-based dictionary"
+          },
+          {
+            q: "SPIMI does not require sorting because:",
+            opts: ["It never stores docIDs", "It merges lists during query time", "It stores tokens unsorted permanently", "It keeps posting lists in hash tables directly"],
+            ans: "It keeps posting lists in hash tables directly"
+          },
+          {
+            q: "Zipf's law implies that:",
+            opts: ["The vocabulary stops growing eventually", "Most words occur rarely", "A few words dominate the corpus", "Word frequency follows a power law"],
+            ans: ["Most words occur rarely", "A few words dominate the corpus", "Word frequency follows a power law"],
+            multi: true
+          },
+          {
+            q: "Which scenario makes hash-based dictionaries unsuitable?",
+            opts: ["Very large number of terms", "Need for range/prefix queries", "Need for dynamic updates", "Need for faster lookups"],
+            ans: "Need for range/prefix queries"
+          },
+          {
+            q: "In the context of posting list compression, why is storing gaps between document IDs more efficient than storing the IDs themselves for frequent terms?",
+            opts: ["Gaps are always smaller numbers, requiring fewer bits to encode.", "Gaps eliminate the need for a dictionary.", "Gaps allow for lossy compression of the index.", "Gaps make range queries faster."],
+            ans: "Gaps are always smaller numbers, requiring fewer bits to encode."
+          },
+          {
+            q: "According to Zipf's Law with constant c=0.1, approximately what percentage of the text do the top 10 most frequent terms account for?",
+            opts: ["10%", "20%", "30%", "40%"],
+            ans: "30%"
+          }
+        ]
+      },
+
+      /* ====================================================
+         CHAPTER 3 — Week 3: Lucene Indexing & Fields
+         ==================================================== */
+      {
+        title: "Lucene Indexing & Fields",
+        questions: [
+          {
+            q: "What is the role of an Analyzer during indexing?",
+            opts: ["It computes relevance scores", "It tokenizes and processes text", "It stores fields on disk", "It merges index segments"],
+            ans: "It tokenizes and processes text"
+          },
+          {
+            q: "In Lucene, a Document is best described as:",
+            opts: ["A single term in the vocabulary", "A query representation", "A container for multiple fields", "A scoring function"],
+            ans: "A container for multiple fields"
+          },
+          {
+            q: "When adding a Field to a Document, which of the following are legitimate concerns regarding how the field's value is handled?",
+            opts: ["Stored: Should the original value be saved so it can be retrieved later?", "Indexed: Should the value be processed so it can be searched?", "Tokenized: If indexed, should the text be broken into individual keywords?", "Typed: Is the value a string, integer, or date?"],
+            ans: ["Stored: Should the original value be saved so it can be retrieved later?", "Indexed: Should the value be processed so it can be searched?", "Tokenized: If indexed, should the text be broken into individual keywords?"],
+            multi: true
+          },
+          {
+            q: "For the 'CONTENT' field to support phrase queries, which IndexOptions setting provides the necessary data?",
+            opts: ["TextField", "IndexOptions.DOCS", "IndexOptions.DOCS_AND_FREQS", "IndexOptions.DOCS_AND_FREQS_AND_POSITIONS"],
+            ans: "IndexOptions.DOCS_AND_FREQS_AND_POSITIONS"
+          },
+          {
+            q: "Adding 1000 documents to a new PyLucene index — which are correct and necessary steps?",
+            opts: ["Use lucene.initVM() at the very start of your script.", "For each document, create a new IndexWriter instance.", "Use writer.addDocument(doc) to add each document to the index.", "Finally, close the IndexWriter with writer.close() to persist changes."],
+            ans: ["Use lucene.initVM() at the very start of your script.", "Use writer.addDocument(doc) to add each document to the index.", "Finally, close the IndexWriter with writer.close() to persist changes."],
+            multi: true
+          },
+          {
+            q: "Which of the following design choices help in efficient indexing?",
+            opts: ["Not storing large text fields", "Using StringField for categorical data", "Tokenizing numeric fields", "Choosing appropriate analyzers"],
+            ans: ["Not storing large text fields", "Using StringField for categorical data", "Choosing appropriate analyzers"],
+            multi: true
+          },
+          {
+            q: "Which of the following statements about Lucene Documents are correct?",
+            opts: ["A document can have multiple fields with the same name", "Field names must be unique per document", "Documents are immutable once indexed", "Documents directly store posting lists"],
+            ans: ["A document can have multiple fields with the same name", "Documents are immutable once indexed"],
+            multi: true
+          },
+          {
+            q: "Why is it usually inefficient to store large text fields in Lucene?",
+            opts: ["Stored fields affect term statistics", "Stored fields increase index size", "Stored fields reduce recall", "Stored fields cannot be compressed"],
+            ans: "Stored fields increase index size"
+          },
+          {
+            q: "Which Lucene field type is most appropriate for document identifiers?",
+            opts: ["TextField", "StoredField", "StringField", "IntPoint"],
+            ans: "StringField"
+          },
+          {
+            q: "For the 'ISBN' field you need exact lookups but will never display it. For 'DESCRIPTION' you need full-text search and must display the original text. Which pair is most appropriate?",
+            opts: ["ISBN: TextField (stored=False), Description: StringField", "ISBN: StringField (stored=False), Description: TextField (stored=True)", "ISBN: StringField (stored=True), Description: StringField (stored=True)", "ISBN: TextField (stored=True), Description: TextField (stored=False)"],
+            ans: "ISBN: StringField (stored=False), Description: TextField (stored=True)"
+          }
+        ]
+      },
+
+      /* ====================================================
+         CHAPTER 4 — Week 4: Analyzers, Fields & Proximity
+         ==================================================== */
+      {
+        title: "Analyzers, Fields & Proximity Queries",
+        questions: [
+          {
+            q: "What is the main risk of using a single analyzer for indexing multilingual documents?",
+            opts: ["Increased index size", "Incorrect tokenization and stemming", "Slower query processing", "Inability to store fields"],
+            ans: "Incorrect tokenization and stemming"
+          },
+          {
+            q: "What does storing a field enable?",
+            opts: ["Faster indexing", "Query-time analysis", "Retrieval of original field value", "Higher ranking score"],
+            ans: "Retrieval of original field value"
+          },
+          {
+            q: "Why might indexing title, abstract, and body as separate fields improve retrieval?",
+            opts: ["Reduces index size", "Enables field-specific boosting", "Avoids stopword removal", "Eliminates need for analyzers"],
+            ans: "Enables field-specific boosting"
+          },
+          {
+            q: "A document has a very long body field and a very short title field. Without field normalization, what is the likely effect?",
+            opts: ["Title dominates scoring", "Body dominates scoring", "Both contribute equally", "Document is ignored"],
+            ans: "Body dominates scoring"
+          },
+          {
+            q: "How does maxDoc() differ from numDocs()?",
+            opts: ["maxDoc() excludes deleted docs", "numDocs() includes deleted docs", "maxDoc() includes deleted docs", "They are always equal"],
+            ans: "maxDoc() includes deleted docs"
+          },
+          {
+            q: "Why might two indexes built from the same corpus appear different in LUKE?",
+            opts: ["Different analyzers used", "Different field storage settings", "Different indexing time", "Different OS"],
+            ans: ["Different analyzers used", "Different field storage settings"],
+            multi: true
+          },
+          {
+            q: "What additional information is needed in an index to handle the query (information UW/3 science)?",
+            opts: ["Term frequencies", "Document IDs", "Term positions", "Field mappings"],
+            ans: "Term positions"
+          },
+          {
+            q: "What is a key limitation of basic Boolean retrieval (AND, OR, NOT)?",
+            opts: ["It cannot handle wildcards", "It does not support ranking", "It cannot process non-English text", "It requires too much memory"],
+            ans: "It does not support ranking"
+          },
+          {
+            q: "What does the query (information OW/2 science) require for a match?",
+            opts: ["'information' must appear exactly 2 words before 'science'", "'information' must appear within 2 words before 'science'", "'information' and 'science' must be in the same document", "'information' must appear after 'science'"],
+            ans: "'information' must appear within 2 words before 'science'"
+          },
+          {
+            q: "If English and German documents are indexed using the same EnglishAnalyzer, what is the most likely consequence?",
+            opts: ["English stopwords will be preserved", "German words may be incorrectly stemmed or removed", "Queries will fail to parse", "Index will not build"],
+            ans: "German words may be incorrectly stemmed or removed"
+          }
+        ]
+      },
+
+      /* ====================================================
+         CHAPTER 5 — Week 5: TF-IDF & Vector Space Model
+         ==================================================== */
+      {
+        title: "TF-IDF & Vector Space Model",
+        questions: [
+          {
+            q: "Which of the following factors are limitations of Boolean retrieval?",
+            opts: ["No ranking of results", "Hard for non-expert users", "Cannot handle free-text queries", "Returns too many, or too few matched documents"],
+            ans: ["No ranking of results", "Hard for non-expert users", "Returns too many, or too few matched documents"],
+            multi: true
+          },
+          {
+            q: "Given: Document D terms: {apple, pie, recipe, sugar, flour}, Query Q = {apple, pie, recipe}. What is the Jaccard coefficient Jaccard(D, Q)?",
+            opts: ["0.6", "0.67", "0.75", "1.0"],
+            ans: "0.6"
+          },
+          {
+            q: "Which of the following factors are ignored by Jaccard similarity?",
+            opts: ["Term frequency", "Term importance", "Unique word overlap", "Exact word ordering"],
+            ans: ["Term frequency", "Term importance", "Exact word ordering"],
+            multi: true
+          },
+          {
+            q: "Given: N = 1000 documents, df('term') = 10. Compute idf('term').",
+            opts: ["1", "2", "3", "4"],
+            ans: "2"
+          },
+          {
+            q: "Which of the following best explains why inner product similarity is biased?",
+            opts: ["It ignores rare terms", "It favors documents with more unique terms", "It favors longer documents", "It penalizes frequent terms"],
+            ans: "It favors longer documents"
+          },
+          {
+            q: "Given two vectors: Q = (1, 1, 0), D = (2, 2, 0). What is cosine similarity(Q, D)?",
+            opts: ["0", "0.5", "1", "2"],
+            ans: "1"
+          },
+          {
+            q: "Given a document d, term t appears 4 times in d, tf(t,d) = 4, N = 1000, df(t) = 100. Using TF weight = 1+log₁₀(tf) and IDF = log₁₀(N/df), what is the length-normalized TF-IDF weight for t in d?",
+            opts: ["0.008", "1.92", "0.81", "1.60"],
+            ans: "1.60"
+          },
+          {
+            q: "Given: N=1000, df('deep')=200, tf('deep', d)=10. Using TF weight = (1+log₁₀(tf)) and IDF = log₁₀(N/df), what is the TF-IDF weight for 'deep' in document d?",
+            opts: ["0.34", "1.39", "1.98", "1.11"],
+            ans: "1.39"
+          },
+          {
+            q: "In VSM, why is the term independence assumption problematic?",
+            opts: ["It ignores semantic relationships between terms", "It overweights rare terms", "It requires too much computation", "It cannot handle long queries"],
+            ans: "It ignores semantic relationships between terms"
+          },
+          {
+            q: "Compute the vector space similarity between the query 'digital cameras' and the document 'digital cameras and video cameras'. N=10,000,000, df(digital)=10,000, df(cameras)=50,000, df(video)=100,000. Use logarithmic term weighting for query and document, idf weighting for query only, and cosine normalization for document only.",
+            opts: ["0.847", "0.897", "3.118", "3.971"],
+            ans: "3.118"
+          }
+        ]
+      },
+
+      /* ====================================================
+         CHAPTER 6 — Week 6: BM25 & Probabilistic IR
+         ==================================================== */
+      {
+        title: "BM25 & Probabilistic Retrieval",
+        questions: [
+          {
+            q: "In BM25, if b=0, what happens to document length normalization?",
+            opts: ["It is fully applied", "It is partially applied", "It is not applied", "It is inverted"],
+            ans: "It is not applied"
+          },
+          {
+            q: "Why is IDF always finite for a term in a collection?",
+            opts: ["Because collection size is finite", "Because term frequency is always > 0", "Because log of zero is undefined", "Because df(t) ≥ 1 for terms in the collection"],
+            ans: "Because df(t) ≥ 1 for terms in the collection"
+          },
+          {
+            q: "In a fielded retrieval model, increasing the weight of the TITLE field will:",
+            opts: ["Penalize long documents", "Increase the importance of matches in TITLE", "Reduce IDF values", "Eliminate BODY matches"],
+            ans: "Increase the importance of matches in TITLE"
+          },
+          {
+            q: "A document has length 120 words, avgdl=100, b=0.75, k1=1.2, tf=8 for term 'data'. What is the BM25 TF component value?",
+            opts: ["~1.88", "~2.78", "~3.45", "~4.32"],
+            ans: "~1.88"
+          },
+          {
+            q: "Which of the following are valid design choices in field-based retrieval?",
+            opts: ["Using different weights for TITLE, ABSTRACT, BODY", "Using the same match function for all zones (mandatory)", "Using different match functions for different fields", "Ignoring BODY completely"],
+            ans: ["Using different weights for TITLE, ABSTRACT, BODY", "Using different match functions for different fields"],
+            multi: true
+          },
+          {
+            q: "If N=1,000,000 and df(Y)=1,000 documents, what is its IDF(t) (considering log base 10)?",
+            opts: ["1", "2", "3", "6"],
+            ans: "3"
+          },
+          {
+            q: "In the SMART notation lnc.ltn, which components apply to the query?",
+            opts: ["Log TF", "IDF", "Cosine normalization", "Binary TF"],
+            ans: ["Log TF", "IDF"],
+            multi: true
+          },
+          {
+            q: "According to the Probability Ranking Principle (PRP), an optimal IR system should:",
+            opts: ["Rank documents by decreasing TF-IDF score", "Rank documents by decreasing probability of relevance", "Classify documents into relevant/non-relevant", "Use Boolean retrieval"],
+            ans: "Rank documents by decreasing probability of relevance"
+          },
+          {
+            q: "The BIM weight log((N − df(i)) / df(i)) is closely related to:",
+            opts: ["TF", "Cosine similarity", "IDF", "Document length normalization"],
+            ans: "IDF"
+          },
+          {
+            q: "For a query with two terms q1 and q2, where df(q1)=100, df(q2)=10,000, and N=1,000,000, what is the total BIM score for a document containing both terms?",
+            opts: ["~7.98", "~5.99", "~4.97", "~3.98"],
+            ans: "~5.99"
+          }
+        ]
+      },
+
+      /* ====================================================
+         CHAPTER 7 — Week 7: Language Models for IR
+         ==================================================== */
+      {
+        title: "Language Models for IR",
+        questions: [
+          {
+            q: "What is a Language Model in the context of IR?",
+            opts: ["A model that translates between languages", "A probability distribution over sequences of words", "A model that checks grammar", "A neural network for text classification"],
+            ans: "A probability distribution over sequences of words"
+          },
+          {
+            q: "What problem does smoothing solve in LMs?",
+            opts: ["Overfitting to training data", "Zero probability for unseen words", "Slow computation", "High memory usage"],
+            ans: "Zero probability for unseen words"
+          },
+          {
+            q: "Which smoothing method uses a fixed λ for all documents?",
+            opts: ["Jelinek-Mercer smoothing", "Dirichlet smoothing", "Laplace smoothing", "Absolute discounting"],
+            ans: "Jelinek-Mercer smoothing"
+          },
+          {
+            q: "Given a document with length |D| = 100, term 'AI' occurs 5 times. What is P('AI'|D) using MLE?",
+            opts: ["0.05", "0.5", "0.005", "0.0005"],
+            ans: "0.05"
+          },
+          {
+            q: "If a query term is missing from a document, without smoothing, P(Q|D) becomes:",
+            opts: ["0", "1", "0.5", "Undefined"],
+            ans: "0"
+          },
+          {
+            q: "λ = 0.7, P(t|D) = 0.2, P(t|C) = 0.02. Smoothed P(t|D) = ?",
+            opts: ["0.066", "0.074", "0.168", "0.146"],
+            ans: "0.146"
+          },
+          {
+            q: "Using the 4-document collection with Jelinek-Mercer smoothing (λ=0.5), what will be the ranking of the documents when the query is: 'shears'?",
+            opts: ["1, 4, 2, 3", "4, 1, 2, 3", "3, 1, 2, 4", "4, 2, 1, 3"],
+            ans: "4, 1, 2, 3"
+          },
+          {
+            q: "What will be the ranking of the documents when the query is: 'click'?",
+            opts: ["2, 1, 3, 4", "1, 4, 2, 3", "2, 3, 4, 1", "2, 1, 4, 3"],
+            ans: "2, 1, 4, 3"
+          },
+          {
+            q: "What will be the ranking of the documents when the query is: 'click shears'?",
+            opts: ["4, 1, 2, 3", "1, 4, 3, 2", "4, 2, 1, 3", "4, 1, 3, 2"],
+            ans: "4, 1, 3, 2"
+          },
+          {
+            q: "What will be the score of document 3 for query 'click shears' under this smoothing?",
+            opts: ["It becomes 0", "It is positive but small", "It is exactly 0.25", "It is exactly 0.5"],
+            ans: "It is positive but small"
+          }
+        ]
+      },
+
+      /* ====================================================
+         CHAPTER 8 — Week 8: KL Divergence & Lucene Queries
+         ==================================================== */
+      {
+        title: "KL Divergence & Lucene Query Classes",
+        questions: [
+          {
+            q: "What does KL Divergence measure between two probability distributions?",
+            opts: ["Their Euclidean distance", "Their cosine similarity", "Their information loss", "Their correlation coefficient"],
+            ans: "Their information loss"
+          },
+          {
+            q: "Which of the following is a property of KL Divergence?",
+            opts: ["Symmetric", "Always equals 1", "Non-negative", "Follows triangle inequality"],
+            ans: "Non-negative"
+          },
+          {
+            q: "Which Lucene query class is used for exact matching of a single term?",
+            opts: ["PhraseQuery", "TermQuery", "BooleanQuery", "WildcardQuery"],
+            ans: "TermQuery"
+          },
+          {
+            q: "Which of the following are true about KL Divergence?",
+            opts: ["KLD(P||Q)=KLD(Q||P)", "KLD(P||Q)≥0", "KLD(P||Q)=0 if P=Q", "In order to get a ranked list, documents are arranged in the decreasing order of KLD(D||Query)."],
+            ans: ["KLD(P||Q)≥0", "KLD(P||Q)=0 if P=Q"],
+            multi: true
+          },
+          {
+            q: "What is a key difference between TermQuery and QueryParser in Lucene?",
+            opts: ["TermQuery uses an analyzer, QueryParser does not", "QueryParser is case-sensitive, TermQuery is not", "TermQuery matches exact stored terms, QueryParser applies analysis", "QueryParser only works with StringField"],
+            ans: "TermQuery matches exact stored terms, QueryParser applies analysis"
+          },
+          {
+            q: "In Jensen-Shannon Divergence, if JSD(P||Q)=0, what can be concluded?",
+            opts: ["P and Q are identical", "P and Q are orthogonal", "KLD(P||Q)=1", "KLD(Q||P)=0.5"],
+            ans: "P and Q are identical"
+          },
+          {
+            q: "What is the range of Jensen-Shannon Divergence?",
+            opts: ["0 to 1", "-1 to 1", "0 to ∞", "Depends on the distributions"],
+            ans: "0 to 1"
+          },
+          {
+            q: "In Lucene, if a field is indexed as StringField, which query method is more appropriate?",
+            opts: ["QueryParser", "TermQuery", "PhraseQuery", "FuzzyQuery"],
+            ans: "TermQuery"
+          },
+          {
+            q: "What happens if you use a different analyzer during search than during indexing in Lucene?",
+            opts: ["No matches will be found", "The search will be slower", "The results may be inaccurate or empty", "The index will be rebuilt"],
+            ans: "The results may be inaccurate or empty"
+          },
+          {
+            q: "In the KL Divergence formula KLD(P||Q) = Σ P(x)log(P(x)/Q(x)), what does a large value indicate?",
+            opts: ["P and Q are similar", "Using Q to approximate P results in high information loss", "P has higher entropy than Q", "Q is a good model for P"],
+            ans: "Using Q to approximate P results in high information loss"
+          }
+        ]
+      },
+
+      /* ====================================================
+         CHAPTER 9 — Week 9: Evaluation Metrics
+         ==================================================== */
+      {
+        title: "IR Evaluation Metrics",
+        questions: [
+          {
+            q: "Which of the following best describes Recall?",
+            opts: ["Fraction of retrieved documents that are relevant", "Fraction of relevant documents that are retrieved", "Fraction of documents classified correctly", "Harmonic mean of precision and recall"],
+            ans: "Fraction of relevant documents that are retrieved"
+          },
+          {
+            q: "Which metric is most affected by class imbalance in IR?",
+            opts: ["Precision", "Recall", "Accuracy", "F1-score"],
+            ans: "Accuracy"
+          },
+          {
+            q: "Which of the following are assumptions of the Cranfield paradigm?",
+            opts: ["Relevance can be objectively determined", "All relevant documents are known", "Relevance depends on document rank", "All relevant documents contribute equally"],
+            ans: ["Relevance can be objectively determined", "All relevant documents are known", "All relevant documents contribute equally"],
+            multi: true
+          },
+          {
+            q: "Two systems have identical Precision, Recall, and F1 scores but one is better than the other. Which metric can distinguish them based on ranking quality?",
+            opts: ["Accuracy", "P@K", "R-Precision", "Average Precision"],
+            ans: "Average Precision"
+          },
+          {
+            q: "A collection contains 10 relevant documents for query Q. The system retrieves a ranked list of 8. Relevance at ranks: 1=YES, 2=NO, 3=NO, 4=NO, 5=YES, 6=NO, 7=NO, 8=YES. The non-interpolated average precision is closest to:",
+            opts: ["0.18", "0.25", "0.36", "0.60"],
+            ans: "0.18"
+          },
+          {
+            q: "For query Q, documents D1-D5 at ranks 1-5 with gain values 1, 1, 3, 0, 1. Calculate DCG at rank 5 with discounting factor 1/log i (log base 2).",
+            opts: ["3.51", "3.98", "4.32", "5.04"],
+            ans: "4.32"
+          },
+          {
+            q: "For another query Q, documents D1-D5 at ranks 1-5 with gain values 3, 2, 0, 3, 1. Calculate nDCG at rank 5 with discounting factor 1/log i (log base 2).",
+            opts: ["0.71", "0.80", "0.89", "0.98"],
+            ans: "0.89"
+          },
+          {
+            q: "Which evaluation scenarios are best matched with their metrics?",
+            opts: ["Known-item search → MRR", "Web search with graded relevance → nDCG", "Early-stage prototype → P@K", "Legal e-discovery → MRR"],
+            ans: ["Known-item search → MRR", "Web search with graded relevance → nDCG", "Early-stage prototype → P@K"],
+            multi: true
+          },
+          {
+            q: "If the first relevant docs are retrieved at ranks: 3, 1, 5, 2 for 4 queries, what is the MRR?",
+            opts: ["0.46", "0.50", "0.58", "0.64"],
+            ans: "0.50"
+          },
+          {
+            q: "If Cohen's κ = 0.72 between two assessors, their agreement is usually considered:",
+            opts: ["Poor", "Fair", "Good", "Perfect"],
+            ans: "Fair"
+          }
+        ]
+      },
+
+      /* ====================================================
+         CHAPTER 10 — Week 10: Query Expansion & TREC (15 Qs)
+         ==================================================== */
+      {
+        title: "Query Expansion, RM3 & TREC Evaluation",
+        questions: [
+          {
+            q: "In Relevance Model 1 (RM1) for query expansion, the expansion terms are derived from:",
+            opts: ["User click logs only", "Document frequency in the corpus", "Top retrieved documents weighted by query likelihood", "Pretrained neural embeddings"],
+            ans: "Top retrieved documents weighted by query likelihood"
+          },
+          {
+            q: "Which of the following is an advantage of RM3 over RM1?",
+            opts: ["Reduces query drift by retaining original query terms", "Requires less computation", "Doesn't need smoothing", "Always improves recall"],
+            ans: "Reduces query drift by retaining original query terms"
+          },
+          {
+            q: "In TREC Eval, what does the qrels file contain?",
+            opts: ["Ranked list of retrieved documents", "Query descriptions", "Ground truth relevance judgments", "Index statistics"],
+            ans: "Ground truth relevance judgments"
+          },
+          {
+            q: "Which trec_eval option outputs per-query results?",
+            opts: ["-m all_trec", "-q", "-m map", "-m P.10"],
+            ans: "-q"
+          },
+          {
+            q: "If a query has 10 relevant documents, and the system retrieves 4 relevant documents in top 10, what is P@10?",
+            opts: ["0.10", "0.25", "0.40", "0.60"],
+            ans: "0.40"
+          },
+          {
+            q: "What is P_RM1('algorithm'|R) in RM1 considering R is the latent relevance model? (Using the given table with query Q = {machine, learning})",
+            opts: ["0.03", "4.65", "1.82", "1.07"],
+            ans: "1.07"
+          },
+          {
+            q: "If RM3 uses α=0.6 (weight to original query), and original query gives P('algorithm'|Q)=0, what is P_RM3('algorithm'|R)?",
+            opts: ["7.28", "4.82", "4.28", "6.42"],
+            ans: "4.28"
+          },
+          {
+            q: "How many relevant documents are there in total for the 50 queries, as indicated in the qrel file? (FIRE dataset)",
+            opts: ["2857", "3076", "3539", "3607"],
+            ans: "3539"
+          },
+          {
+            q: "Which query is having the highest number of relevant documents? (FIRE dataset)",
+            opts: ["204", "189", "192", "224"],
+            ans: "204"
+          },
+          {
+            q: "Which query is having the least number of relevant documents? (FIRE dataset)",
+            opts: ["208", "187", "194", "223"],
+            ans: "187"
+          },
+          {
+            q: "Perform retrieval using Language Model with Dirichlet Smoothing with MU set to 500. What is the mean average precision (MAP) after performing the retrieval with the topic set of 50 queries? (closest answer)",
+            opts: ["0.30", "0.28", "0.36", "0.40"],
+            ans: "0.36"
+          },
+          {
+            q: "What is obtained precision at rank 5 (p@5) for the query number 200? (BM25, k1=1, b=0.5, closest answer)",
+            opts: ["0.1", "0.2", "0.3", "0.4"],
+            ans: "0.4"
+          },
+          {
+            q: "Perform retrieval using BM25 with k1 set to 1 and b set to 0.5. What is the overall obtained recall? (closest answer)",
+            opts: ["0.6", "0.7", "0.8", "0.9"],
+            ans: "0.8"
+          },
+          {
+            q: "What is the reciprocal rank for the query number 186 after BM25 retrieval with k1=1 and b=0.5? (closest answer)",
+            opts: ["0.4", "0.6", "0.8", "1.0"],
+            ans: "1.0"
+          },
+          {
+            q: "What is the overall NDCG at rank 5 when retrieval is performed using BM25 with k1=1 and b=0.5? (closest answer)",
+            opts: ["0.3", "0.4", "0.5", "0.6"],
+            ans: "0.6"
+          }
+        ]
+      },
+
+      /* ====================================================
+         CHAPTER 11 — Week 11: PageRank & HITS
+         ==================================================== */
+      {
+        title: "PageRank, HITS & Web IR",
+        questions: [
+          {
+            q: "In PageRank, what does the damping factor (d) typically represent?",
+            opts: ["The probability of stopping the algorithm", "The probability of jumping to a random page", "The number of inbound links", "The number of outbound links"],
+            ans: "The probability of jumping to a random page"
+          },
+          {
+            q: "White Hat SEO refers to:",
+            opts: ["Using unethical techniques to rank higher", "Following search engine guidelines and focusing on user experience", "Buying links to improve ranking", "Ignoring mobile optimization"],
+            ans: "Following search engine guidelines and focusing on user experience"
+          },
+          {
+            q: "In PageRank, an inbound link contributes more when it comes from:",
+            opts: ["A page with high PageRank", "A page with many outbound links", "A newly crawled page", "A page with fewer terms"],
+            ans: "A page with high PageRank"
+          },
+          {
+            q: "Given a PageRank damping factor d = 0.85, what fraction of rank mass comes from teleportation?",
+            opts: ["0.15", "0.85", "1/N", "0"],
+            ans: "0.15"
+          },
+          {
+            q: "Which matrix property is required for PageRank convergence?",
+            opts: ["Symmetry", "Diagonal dominance", "Stochasticity", "Orthogonality"],
+            ans: "Stochasticity"
+          },
+          {
+            q: "What will be the normalized authority score of node C in the given graph after first iteration?",
+            opts: ["1/12", "1/15", "5/12", "5/15"],
+            ans: "5/12"
+          },
+          {
+            q: "What will be the normalized hub score of node E in the given graph after first iteration?",
+            opts: ["4/15", "4/12", "1/12", "1/15"],
+            ans: "4/12"
+          },
+          {
+            q: "What will be the normalized authority score of node G in the given graph after second iteration?",
+            opts: ["2/15", "4/15", "0", "2/12"],
+            ans: "2/15"
+          },
+          {
+            q: "What will be the normalized hub score of node A in the given graph after second iteration?",
+            opts: ["2/15", "1/15", "2/45", "4/45"],
+            ans: "2/45"
+          },
+          {
+            q: "What will be the normalized authority score of node C in the given graph after second iteration?",
+            opts: ["12/35", "1/7", "4/35", "1/15"],
+            ans: "12/35"
+          }
+        ]
+      },
+
+      /* ====================================================
+         CHAPTER 12 — Week 12: LSI, Neural IR & LTR
+         ==================================================== */
+      {
+        title: "LSI, Neural IR & Learning to Rank",
+        questions: [
+          {
+            q: "Which of the following best defines Learning to Rank (LTR)?",
+            opts: ["A rule-based ranking framework", "A probabilistic retrieval model", "A machine learning approach to learning ranking functions from data", "A query expansion technique"],
+            ans: "A machine learning approach to learning ranking functions from data"
+          },
+          {
+            q: "Which of the following is a key innovation of RoBERTa over BERT?",
+            opts: ["Adding more attention heads", "Removing Next Sentence Prediction", "Using CNN layers", "Adding reinforcement learning"],
+            ans: "Removing Next Sentence Prediction"
+          },
+          {
+            q: "If a term-document matrix has dimensions 1000×500 and rank 200, and we choose k=50 for SVD approximation, what is the size of Uk?",
+            opts: ["1000×50", "50×500", "1000×200", "200×50"],
+            ans: "1000×50"
+          },
+          {
+            q: "Which of the following are true about Sentence-BERT?",
+            opts: ["It encodes queries and documents separately", "It uses cross-encoder architecture", "It is designed for efficient semantic search", "It processes query and document together"],
+            ans: ["It encodes queries and documents separately"],
+            multi: true
+          },
+          {
+            q: "LambdaRank improves RankNet by:",
+            opts: ["Using gradient boosting", "Scaling gradients by NDCG gain", "Adding more hidden layers", "Using listwise loss"],
+            ans: "Scaling gradients by NDCG gain"
+          },
+          {
+            q: "Why do we often assign lower weights to expansion terms than original query terms?",
+            opts: ["To save memory", "To reduce influence of less certain terms on ranking", "Because expansion terms are always irrelevant", "To avoid computing embeddings"],
+            ans: "To reduce influence of less certain terms on ranking"
+          },
+          {
+            q: "In LSI, the reduced-rank approximation Ak minimizes which quantity?",
+            opts: ["KL-divergence", "Cosine similarity loss", "Frobenius norm of A−Ak", "Determinant of covariance matrix"],
+            ans: "Frobenius norm of A−Ak"
+          },
+          {
+            q: "Which combination best reflects a practical IR system using LSI?",
+            opts: ["Replace original scores entirely with LSI scores", "Use LSI only for query expansion", "Linearly combine original scores with LSI scores", "Use LSI only for indexing"],
+            ans: "Linearly combine original scores with LSI scores"
+          },
+          {
+            q: "Key limitations of static embeddings include:",
+            opts: ["Same vector for polysemous words", "Inability to capture context", "High dimensionality", "Slow training time"],
+            ans: ["Same vector for polysemous words", "Inability to capture context"],
+            multi: true
+          },
+          {
+            q: "Which embedding method is most likely to capture phrase-level semantics for query expansion?",
+            opts: ["Word2Vec (Skip-gram/ CBoW)", "GloVe", "FastText", "BERT sentence embeddings"],
+            ans: "BERT sentence embeddings"
+          }
+        ]
+      }
+
+    ]; // end CHAPTERS
+
+
+    /* ============================================================
+       STATE
+       ============================================================ */
+    let currentChapterIndex = -1;   // which chapter is being quizzed
+    let currentQuestions = [];   // active question set
+    let currentQIndex = 0;    // current question pointer
+    let score = 0;
+    let selectedOptions = new Set(); // for multi-select
+    let answered = false;     // has user answered current Q?
+    let isFullQuiz = false;
+
+    /* ============================================================
+       SCREEN MANAGEMENT
+       ============================================================ */
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    /* ============================================================
+       WELCOME ACTIONS
+       ============================================================ */
+    function showChapterSelect() {
+      buildChapterGrid();
+      showScreen('chapter-select');
+    }
+
+    function startFullQuiz() {
+      // Flatten all questions into one array
+      isFullQuiz = true;
+      currentChapterIndex = -1;
+      currentQuestions = CHAPTERS.flatMap(ch => ch.questions);
+      startQuiz("All Assignments · 125 Questions");
+    }
+
+    /* ============================================================
+       CHAPTER SELECT
+       ============================================================ */
+    function buildChapterGrid() {
+      const grid = document.getElementById('chapters-grid');
+      grid.innerHTML = '';
+      CHAPTERS.forEach((ch, i) => {
+        const card = document.createElement('div');
+        card.className = 'chapter-card';
+        card.innerHTML = `
+      <div class="chapter-accent-bar"></div>
+      <div class="chapter-number">WEEK ${i + 1} · CHAPTER ${i + 1}</div>
+      <h3>${ch.title}</h3>
+      <span class="q-count">${ch.questions.length} questions</span>
+    `;
+        card.onclick = () => {
+          isFullQuiz = false;
+          currentChapterIndex = i;
+          currentQuestions = ch.questions;
+          startQuiz(`Week ${i + 1} · ${ch.title}`);
+        };
+        grid.appendChild(card);
+      });
+    }
+
+    /* ============================================================
+       QUIZ LOGIC
+       ============================================================ */
+    function startQuiz(label) {
+      currentQIndex = 0;
+      score = 0;
+      document.getElementById('quiz-chapter-label').textContent = label.toUpperCase();
+      document.getElementById('score-display').textContent = '0';
+      showScreen('quiz');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const total = currentQuestions.length;
+      const q = currentQuestions[currentQIndex];
+      const isMulti = q.multi === true;
+
+      answered = false;
+      selectedOptions.clear();
+
+      // Progress bar
+      document.getElementById('progress-fill').style.width = `${(currentQIndex / total) * 100}%`;
+
+      // Q number
+      document.getElementById('q-num').textContent = `Q ${currentQIndex + 1} / ${total}`;
+
+      // Multi-select badge
+      const badge = document.getElementById('q-type-badge');
+      badge.style.display = isMulti ? 'inline-block' : 'none';
+
+      // Question text
+      document.getElementById('question-text').textContent = q.q;
+
+      // Hide feedback
+      const fb = document.getElementById('feedback-banner');
+      fb.className = 'feedback-banner';
+      fb.style.display = '';
+
+      // Hide submit / disable next
+      document.getElementById('submit-btn').style.display = isMulti ? 'inline-block' : 'none';
+      document.getElementById('submit-btn').disabled = true;
+      const nextBtn = document.getElementById('next-btn');
+      nextBtn.disabled = true;
+      nextBtn.textContent = (currentQIndex === total - 1) ? 'See Results →' : 'Next →';
+
+      // Build options
+      const list = document.getElementById('options-list');
+      list.innerHTML = '';
+
+      q.opts.forEach((opt, oi) => {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.className = `option-btn ${isMulti ? 'multi' : 'single'}`;
+        btn.dataset.index = oi;
+        btn.innerHTML = `
+      <span class="option-check">${isMulti ? '' : ''}</span>
+      <span>${opt}</span>
+    `;
+        btn.onclick = () => handleOptionClick(btn, opt, isMulti, q);
+        li.appendChild(btn);
+        list.appendChild(li);
+      });
+    }
+
+    function handleOptionClick(btn, opt, isMulti, q) {
+      if (answered) return;
+
+      if (!isMulti) {
+        // Single select — auto-grade immediately
+        gradeAnswer([opt], q);
+      } else {
+        // Multi select — toggle selection
+        const idx = parseInt(btn.dataset.index);
+        if (selectedOptions.has(idx)) {
+          selectedOptions.delete(idx);
+          btn.classList.remove('selected');
+          btn.querySelector('.option-check').textContent = '';
+        } else {
+          selectedOptions.add(idx);
+          btn.classList.add('selected');
+          btn.querySelector('.option-check').textContent = '✓';
+        }
+        document.getElementById('submit-btn').disabled = selectedOptions.size === 0;
+      }
+    }
+
+    function submitMulti() {
+      if (answered) return;
+      const q = currentQuestions[currentQIndex];
+      const selected = Array.from(selectedOptions).map(i => q.opts[i]);
+      gradeAnswer(selected, q);
+    }
+
+    function gradeAnswer(selected, q) {
+      answered = true;
+      document.getElementById('submit-btn').disabled = true;
+
+      // Normalize correct answers to array
+      const correct = Array.isArray(q.ans) ? q.ans : [q.ans];
+
+      // Check correctness
+      const sortedSelected = [...selected].sort();
+      const sortedCorrect = [...correct].sort();
+      const isCorrect = JSON.stringify(sortedSelected) === JSON.stringify(sortedCorrect);
+
+      if (isCorrect) {
+        score++;
+        document.getElementById('score-display').textContent = score;
+      }
+
+      // Highlight buttons
+      const btns = document.querySelectorAll('.option-btn');
+      btns.forEach(btn => {
+        const opt = btn.querySelector('span:last-child').textContent;
+        btn.disabled = true;
+
+        if (correct.includes(opt)) {
+          btn.classList.add('show-correct');
+          btn.querySelector('.option-check').textContent = '✓';
+        }
+        if (selected.includes(opt) && !correct.includes(opt)) {
+          btn.classList.remove('selected');
+          btn.classList.add('wrong');
+          btn.querySelector('.option-check').textContent = '✗';
+        }
+        if (selected.includes(opt) && correct.includes(opt)) {
+          btn.classList.remove('selected');
+          btn.classList.add('correct');
+          btn.querySelector('.option-check').textContent = '✓';
+        }
+      });
+
+      // Feedback banner
+      const fb = document.getElementById('feedback-banner');
+      if (isCorrect) {
+        fb.className = 'feedback-banner correct show';
+        fb.innerHTML = '✅ Correct!';
+      } else {
+        const correctText = correct.join(' | ');
+        fb.className = 'feedback-banner wrong show';
+        fb.innerHTML = `❌ Incorrect. Correct: <em style="margin-left:.35rem">${correctText}</em>`;
+      }
+
+      document.getElementById('next-btn').disabled = false;
+    }
+
+    function nextQuestion() {
+      currentQIndex++;
+      if (currentQIndex >= currentQuestions.length) {
+        showResult();
+      } else {
+        renderQuestion();
+      }
+    }
+
+    function confirmBack() {
+      if (confirm('Exit this quiz? Your progress will be lost.')) {
+        showScreen(isFullQuiz ? 'welcome' : 'chapter-select');
+      }
+    }
+
+    /* ============================================================
+       RESULT SCREEN
+       ============================================================ */
+    function showResult() {
+      const total = currentQuestions.length;
+      const pct = Math.round((score / total) * 100);
+
+      document.getElementById('res-correct').textContent = score;
+      document.getElementById('res-wrong').textContent = total - score;
+      document.getElementById('res-total').textContent = total;
+      document.getElementById('result-pct').textContent = pct + '%';
+
+      // Animate ring
+      const ring = document.getElementById('result-ring');
+      ring.style.background = `conic-gradient(var(--accent) ${pct * 3.6}deg, var(--card) 0deg)`;
+
+      // Title
+      let title, sub;
+      if (pct === 100) { title = 'Perfect Score! 🎉'; sub = 'Outstanding! You aced every question.'; }
+      else if (pct >= 80) { title = 'Excellent! 🌟'; sub = `You got ${score} out of ${total} correct. Great work!`; }
+      else if (pct >= 60) { title = 'Good Job! 👍'; sub = `You got ${score} out of ${total} correct. Keep it up!`; }
+      else if (pct >= 40) { title = 'Keep Practicing 📚'; sub = `You got ${score} out of ${total} correct. Review the material and try again.`; }
+      else { title = 'Keep Going! 💪'; sub = `You got ${score} out of ${total}. Don't give up — review the chapters!`; }
+
+      document.getElementById('result-title').textContent = title;
+      document.getElementById('result-sub').textContent = sub;
+
+      showScreen('result');
+    }
+
+    function retryQuiz() {
+      if (isFullQuiz) {
+        startFullQuiz();
+      } else {
+        currentQuestions = CHAPTERS[currentChapterIndex].questions;
+        startQuiz(`Week ${currentChapterIndex + 1} · ${CHAPTERS[currentChapterIndex].title}`);
+      }
+    }
+
+  </script>
+</body>
+
+</html>
