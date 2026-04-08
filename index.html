@@ -1322,22 +1322,22 @@
             ans: "0.146"
           },
           {
-            q: "Using the 4-document collection with Jelinek-Mercer smoothing (λ=0.5), what will be the ranking of the documents when the query is: 'shears'?",
+            q: "Suppose we have a collection that consists of the 4 documents given in the below table.<br><br><table style='margin: 0 auto; border-collapse: collapse; text-align: left;' border='1'><tr><th style='padding: 5px;'>docID</th><th style='padding: 5px;'>Document text</th></tr><tr><td style='padding: 5px;'>1</td><td style='padding: 5px;'>click go the shears boys click click click</td></tr><tr><td style='padding: 5px;'>2</td><td style='padding: 5px;'>click click</td></tr><tr><td style='padding: 5px;'>3</td><td style='padding: 5px;'>metal here</td></tr><tr><td style='padding: 5px;'>4</td><td style='padding: 5px;'>metal shears click here</td></tr></table><br>Build a query likelihood language model for this document collection. Assume a mixture model between the documents and the collection, with both weighted at 0.5. Maximum likelihood estimation (MLE) is used to estimate both as unigram models.<br><br>Using the 4-document collection with Jelinek-Mercer smoothing (λ=0.5), what will be the ranking of the documents when the query is: 'shears'?",
             opts: ["1, 4, 2, 3", "4, 1, 2, 3", "3, 1, 2, 4", "4, 2, 1, 3"],
             ans: "4, 1, 2, 3"
           },
           {
-            q: "What will be the ranking of the documents when the query is: 'click'?",
+            q: "Suppose we have a collection that consists of the 4 documents given in the below table.<br><br><table style='margin: 0 auto; border-collapse: collapse; text-align: left;' border='1'><tr><th style='padding: 5px;'>docID</th><th style='padding: 5px;'>Document text</th></tr><tr><td style='padding: 5px;'>1</td><td style='padding: 5px;'>click go the shears boys click click click</td></tr><tr><td style='padding: 5px;'>2</td><td style='padding: 5px;'>click click</td></tr><tr><td style='padding: 5px;'>3</td><td style='padding: 5px;'>metal here</td></tr><tr><td style='padding: 5px;'>4</td><td style='padding: 5px;'>metal shears click here</td></tr></table><br>Build a query likelihood language model for this document collection. Assume a mixture model between the documents and the collection, with both weighted at 0.5. Maximum likelihood estimation (MLE) is used to estimate both as unigram models.<br><br>What will be the ranking of the documents when the query is: 'click'?",
             opts: ["2, 1, 3, 4", "1, 4, 2, 3", "2, 3, 4, 1", "2, 1, 4, 3"],
             ans: "2, 1, 4, 3"
           },
           {
-            q: "What will be the ranking of the documents when the query is: 'click shears'?",
+            q: "Suppose we have a collection that consists of the 4 documents given in the below table.<br><br><table style='margin: 0 auto; border-collapse: collapse; text-align: left;' border='1'><tr><th style='padding: 5px;'>docID</th><th style='padding: 5px;'>Document text</th></tr><tr><td style='padding: 5px;'>1</td><td style='padding: 5px;'>click go the shears boys click click click</td></tr><tr><td style='padding: 5px;'>2</td><td style='padding: 5px;'>click click</td></tr><tr><td style='padding: 5px;'>3</td><td style='padding: 5px;'>metal here</td></tr><tr><td style='padding: 5px;'>4</td><td style='padding: 5px;'>metal shears click here</td></tr></table><br>Build a query likelihood language model for this document collection. Assume a mixture model between the documents and the collection, with both weighted at 0.5. Maximum likelihood estimation (MLE) is used to estimate both as unigram models.<br><br>What will be the ranking of the documents when the query is: 'click shears'?",
             opts: ["4, 1, 2, 3", "1, 4, 3, 2", "4, 2, 1, 3", "4, 1, 3, 2"],
             ans: "4, 1, 3, 2"
           },
           {
-            q: "What will be the score of document 3 for query 'click shears' under this smoothing?",
+            q: "Suppose we have a collection that consists of the 4 documents given in the below table.<br><br><table style='margin: 0 auto; border-collapse: collapse; text-align: left;' border='1'><tr><th style='padding: 5px;'>docID</th><th style='padding: 5px;'>Document text</th></tr><tr><td style='padding: 5px;'>1</td><td style='padding: 5px;'>click go the shears boys click click click</td></tr><tr><td style='padding: 5px;'>2</td><td style='padding: 5px;'>click click</td></tr><tr><td style='padding: 5px;'>3</td><td style='padding: 5px;'>metal here</td></tr><tr><td style='padding: 5px;'>4</td><td style='padding: 5px;'>metal shears click here</td></tr></table><br>Build a query likelihood language model for this document collection. Assume a mixture model between the documents and the collection, with both weighted at 0.5. Maximum likelihood estimation (MLE) is used to estimate both as unigram models.<br><br>What will be the score of document 3 for query 'click shears' under this smoothing?",
             opts: ["It becomes 0", "It is positive but small", "It is exactly 0.25", "It is exactly 0.5"],
             ans: "It is positive but small"
           }
@@ -1397,7 +1397,7 @@
             ans: "The results may be inaccurate or empty"
           },
           {
-            q: "In the KL Divergence formula KLD(P||Q) = Σ P(x)log(P(x)/Q(x)), what does a large value indicate?",
+            q: "In the KL Divergence formula<div style='text-align: center; font-size: 1.3rem; font-family: serif; margin: 1.5rem 0;'><i>KLD</i>(<i>P</i>||<i>Q</i>) = <span style='display: inline-flex; align-items: center; vertical-align: middle;'><span style='display: inline-flex; flex-direction: column; align-items: center; justify-content: center; margin-right: 8px;'><span style='font-size: 1.8rem; line-height: 1;'>∑</span><span style='font-size: 0.65rem; margin-top: -2px;'><i>x</i> ∈ X</span></span><span><i>P</i>(<i>x</i>) log</span><span style='display: inline-flex; flex-direction: column; align-items: center; justify-content: center; margin-left: 6px;'><span style='border-bottom: 1.5px solid currentColor; padding: 0 4px; line-height: 1.2;'><i>P</i>(<i>x</i>)</span><span style='padding: 0 4px; line-height: 1.2;'><i>Q</i>(<i>x</i>)</span></span></span></div>What does a large value indicate?",
             opts: ["P and Q are similar", "Using Q to approximate P results in high information loss", "P has higher entropy than Q", "Q is a good model for P"],
             ans: "Using Q to approximate P results in high information loss"
           }
@@ -1432,17 +1432,17 @@
             ans: "Average Precision"
           },
           {
-            q: "A collection contains 10 relevant documents for query Q. The system retrieves a ranked list of 8. Relevance at ranks: 1=YES, 2=NO, 3=NO, 4=NO, 5=YES, 6=NO, 7=NO, 8=YES. The non-interpolated average precision is closest to:",
+            q: "Consider a collection that contains 10 relevant documents for a given query Q. An IR system retrieves a ranked list of 8 documents in response to query Q, for which the relevance assessments are given below.<br><br><table style='margin: 0 auto; border-collapse: collapse; text-align: center;' border='1'><tr><th style='padding: 5px 15px;'>Rank</th><th style='padding: 5px 15px;'>Relevant?</th><th style='padding: 5px 15px;'>Rank</th><th style='padding: 5px 15px;'>Relevant?</th></tr><tr><td style='padding: 5px;'>1</td><td style='padding: 5px;'>YES</td><td style='padding: 5px;'>5</td><td style='padding: 5px;'>YES</td></tr><tr><td style='padding: 5px;'>2</td><td style='padding: 5px;'>NO</td><td style='padding: 5px;'>6</td><td style='padding: 5px;'>NO</td></tr><tr><td style='padding: 5px;'>3</td><td style='padding: 5px;'>NO</td><td style='padding: 5px;'>7</td><td style='padding: 5px;'>NO</td></tr><tr><td style='padding: 5px;'>4</td><td style='padding: 5px;'>NO</td><td style='padding: 5px;'>8</td><td style='padding: 5px;'>YES</td></tr></table><br>The non-interpolated average precision for this list is closest to:",
             opts: ["0.18", "0.25", "0.36", "0.60"],
             ans: "0.18"
           },
           {
-            q: "For query Q, documents D1-D5 at ranks 1-5 with gain values 1, 1, 3, 0, 1. Calculate DCG at rank 5 with discounting factor 1/log i (log base 2).",
+            q: "Consider a test collection in which, for a given query, documents are assigned gain values as follows:<br><br><table style='margin: 0 auto; border-collapse: collapse; text-align: left;' border='1'><tr><th style='padding: 5px 15px;'>Rating</th><th style='padding: 5px 15px;'>Gain value</th></tr><tr><td style='padding: 5px 15px;'>Not relevant</td><td style='padding: 5px 15px; text-align: center;'>0</td></tr><tr><td style='padding: 5px 15px;'>Marginally relevant</td><td style='padding: 5px 15px; text-align: center;'>1</td></tr><tr><td style='padding: 5px 15px;'>Relevant</td><td style='padding: 5px 15px; text-align: center;'>2</td></tr><tr><td style='padding: 5px 15px;'>Highly relevant</td><td style='padding: 5px 15px; text-align: center;'>3</td></tr></table><br>For a particular query Q, a system retrieves documents D1, D2, D3, D4, D5 at ranks 1 through 5. Their gain values are 1, 1, 3, 0, 1. Calculate DCG at rank 5 with the discounting factor 1/log i (log base is 2).",
             opts: ["3.51", "3.98", "4.32", "5.04"],
             ans: "4.32"
           },
           {
-            q: "For another query Q, documents D1-D5 at ranks 1-5 with gain values 3, 2, 0, 3, 1. Calculate nDCG at rank 5 with discounting factor 1/log i (log base 2).",
+            q: "Consider a test collection in which, for a given query, documents are assigned gain values as follows:<br><br><table style='margin: 0 auto; border-collapse: collapse; text-align: left;' border='1'><tr><th style='padding: 5px 15px;'>Rating</th><th style='padding: 5px 15px;'>Gain value</th></tr><tr><td style='padding: 5px 15px;'>Not relevant</td><td style='padding: 5px 15px; text-align: center;'>0</td></tr><tr><td style='padding: 5px 15px;'>Marginally relevant</td><td style='padding: 5px 15px; text-align: center;'>1</td></tr><tr><td style='padding: 5px 15px;'>Relevant</td><td style='padding: 5px 15px; text-align: center;'>2</td></tr><tr><td style='padding: 5px 15px;'>Highly relevant</td><td style='padding: 5px 15px; text-align: center;'>3</td></tr></table><br>For another query Q, a system retrieves documents D1, D2, D3, D4, D5 at ranks 1 through 5. Their gain values are 3, 2, 0, 3, 1. Calculate nDCG at rank 5 with the discounting factor 1/log i (log base is 2).",
             opts: ["0.71", "0.80", "0.89", "0.98"],
             ans: "0.89"
           },
@@ -1763,7 +1763,7 @@
       badge.style.display = isMulti ? 'inline-block' : 'none';
 
       // Question text
-      document.getElementById('question-text').textContent = q.q;
+      document.getElementById('question-text').innerHTML = q.q;
 
       // Hide feedback
       const fb = document.getElementById('feedback-banner');
