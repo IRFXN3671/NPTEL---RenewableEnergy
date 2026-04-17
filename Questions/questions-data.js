@@ -139,7 +139,7 @@ window.QUESTION_SETS = [
     "questions": [
       "1. What will be the net energy from a biogas digester with a boiler efficiency of 41%, the heat of combustion per unit volume of methane is 28 MJ/m, and volume of biogas is 9 m? Given that there is 18 m of methane in every 75 m of biogas. A. 42.61 MJ B. 24.79 MJ C. 29.73 MJ D. 56.39 MJ",
       "2. The daily dry manure produced per buffalo is 0.65 kg, and the percentage of dry matter in manure is 8%. Considering a retention time 28 days, calculate the total volume of manure required in a biogas digester for a farm consisting of 60 buffaloes. (density of manure = 1080 kg/ m). A. 21.73 m B. 9.34 m C. 5.21 m D. 12.62 m",
-      "3. The optimum pH range for efficient bio-digestion is: A. >10 B. <3 C. 3.5  4.5 D. 6.5  7.5",
+      "3. The optimum pH range for efficient bio-digestion is: A. >10 B. <3 C. 3.5 - 4.5 D. 6.5 - 7.5",
       "4. The energy available from a biogas digestor having boiler efficiency of 49 %, heat of combustion per unit biogas volume of 44 MJ/ m and biogas volume of 6 m is: A. 129.36 MJ B. 135.65 MJ C. 113.36 MJ D. 115.86 MJ",
       "5. The Optimum Thermophilic temperature of microorganisms in biogas formation lies in the range of: A. 50-60 B. 35-40 C. 25-35 D. 40-50",
       "6. The optimum N/C ratio in the biogas digestion process for maximum microbiological activity is: A. 1:10-15 B. 25-30:1 C. 1:25-30 D. 10-15:1",

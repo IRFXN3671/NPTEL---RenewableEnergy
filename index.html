@@ -568,15 +568,15 @@
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.42rem 0.75rem;
+      padding: 0.7rem 1rem;
       border-radius: 999px;
       border: 1px solid rgba(51, 209, 143, 0.2);
       background: rgba(51, 209, 143, 0.09);
       color: var(--good);
-      font: 700 0.82rem/1 'IBM Plex Mono', monospace;
-      letter-spacing: 0.08em;
+      font: 700 clamp(1rem, 2.2vw, 1.45rem)/1 'IBM Plex Mono', monospace;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
-      margin-bottom: 1rem;
+      margin-bottom: 1.1rem;
     }
 
     .hidden { display: none !important; }
@@ -692,6 +692,7 @@
       <h2 id="result-title">Quiz complete</h2>
       <p id="result-subtitle">You completed the selected set.</p>
       <div class="secondary-actions">
+        <button class="btn" id="next-week-btn" type="button">Next Week Quiz</button>
         <button class="btn primary" id="restart-btn" type="button">Restart</button>
         <button class="btn" id="back-btn" type="button">Choose another set</button>
       </div>
@@ -703,18 +704,18 @@
   <script src="Questions/questions-data.js"></script>
   <script>
     const ANSWERS = {
-      1: { 1: 'c', 2: 'a', 3: 'd', 4: 'd', 5: 'a', 6: 'b', 7: 'a', 8: 'b', 9: 'b', 10: 'd', 12: 'b' },
+      1: { 1: 'c', 2: 'a', 3: 'd', 4: 'd', 5: 'a', 6: 'b', 7: 'a', 8: 'b', 9: 'b', 10: 'd', 12: 'd' },
       2: { 1: 'd', 2: 'b', 3: 'a', 4: 'c', 5: 'b', 6: 'b', 7: 'c', 8: 'b', 9: 'b', 10: 'b' },
-      3: { 1: 'b', 2: 'b', 3: 'c', 4: 'c', 5: 'c', 6: 'b', 7: 'b', 8: 'b' },
-      4: { 1: 'b', 2: 'b', 3: 'c', 4: 'c', 5: 'c', 6: 'd', 7: 'c', 8: 'a' },
-      5: { 1: 'b', 2: 'c', 3: 'c', 4: 'c', 5: 'b', 6: 'b', 7: 'c', 8: 'b', 9: 'b', 10: 'b' },
+      3: { 1: 'a', 2: 'b', 3: 'd', 4: 'c', 5: 'c', 6: 'b', 7: 'b', 8: 'b' },
+      4: { 1: 'b', 2: 'b', 3: 'c', 4: 'c', 5: 'c', 6: 'd', 7: 'b', 8: 'a' },
+      5: { 1: 'b', 2: 'c', 3: 'c', 4: 'c', 5: 'c', 6: 'b', 7: 'c', 8: 'b', 9: 'b', 10: 'b' },
       6: { 1: 'c', 2: 'a', 3: 'd', 4: 'b', 5: 'd', 6: 'c', 7: 'c', 8: 'b', 9: 'a' },
-      7: { 1: 'c', 2: 'a', 3: 'a', 4: 'b', 5: 'c', 6: 'a', 7: 'c', 8: 'd', 9: 'd', 10: 'c' },
-      8: { 1: 'c', 2: 'b', 3: 'd', 4: 'a', 5: 'd', 6: 'a', 7: 'd', 8: 'c' },
-      9: { 1: 'd', 2: 'd', 3: 'c', 4: 'c', 5: 'b', 6: 'b', 7: 'a', 8: 'b' },
-      10: { 1: 'b', 2: 'c', 3: 'b', 4: 'd', 5: 'c', 6: 'd', 7: 'a', 8: 'd' },
+      7: { 1: 'c', 2: 'a', 3: 'a', 4: 'b', 5: 'c', 6: 'b', 7: 'a', 8: 'd', 9: 'd', 10: 'c' },
+      8: { 1: 'b', 2: 'd', 3: 'd', 4: 'a', 5: 'a', 6: 'c', 7: 'b', 8: 'c' },
+      9: { 1: 'a', 2: 'd', 3: 'c', 4: 'c', 5: 'b', 6: 'b', 7: 'a', 8: 'a' },
+      10: { 1: 'b', 2: 'c', 3: 'c', 4: 'd', 5: 'c', 6: 'd', 7: 'c', 8: 'd' },
       11: { 1: 'b', 2: 'c', 3: 'b', 4: 'b', 5: 'b', 6: 'c', 7: 'b', 8: 'c', 9: 'c', 10: 'b' },
-      12: { 1: 'c', 2: 'b', 3: 'b', 4: 'b', 5: 'c', 6: 'c', 7: 'c' }
+      12: { 1: 'c', 2: 'b', 3: 'b', 4: 'b', 5: 'c', 6: 'c', 7: 'b' }
     };
 
     const QUESTION_FIXES = {
@@ -764,8 +765,8 @@
             c: 'Hydrous pyrolysis',
             d: 'Fermentation'
           },
-          correct: 'a',
-          explanation: 'Pyrolysis is the correct choice for maximum carbon yield in bio-oil.'
+          correct: 'c',
+          explanation: 'Hydrous Pyrolysis is the correct choice for maximum carbon yield in bio-oil.'
         }
       },
       3: {
@@ -828,6 +829,7 @@
     const resultScore = document.getElementById('result-score');
     const resultTitle = document.getElementById('result-title');
     const resultSubtitle = document.getElementById('result-subtitle');
+    const nextWeekBtn = document.getElementById('next-week-btn');
     const restartBtn = document.getElementById('restart-btn');
     const backBtn = document.getElementById('back-btn');
 
@@ -838,6 +840,7 @@
     let locked = false;
     let score = 0;
     let attempted = 0;
+    let activeWeek = null;
     let normalizedSets = [];
     let questionStates = [];
     let selectedAnswers = [];
@@ -1003,6 +1006,10 @@
         ...item,
         quizNumber: index + 1,
       }));
+
+      const weeksInSelection = [...new Set(items.map((item) => Number(item.week)).filter(Number.isFinite))];
+      activeWeek = weeksInSelection.length === 1 ? weeksInSelection[0] : null;
+
       activeLabel = label;
       currentIndex = 0;
       score = 0;
@@ -1186,6 +1193,14 @@
       resultScore.textContent = `Score ${score}/${activeSet.length} (${pct}%)`;
       resultTitle.textContent = pct >= 80 ? 'Strong run' : pct >= 50 ? 'Mixed run' : 'Quiz complete';
       resultSubtitle.textContent = `You completed ${activeLabel}. If you want, choose another week or run the full quiz again.`;
+
+      const nextWeekSet = activeWeek ? normalizedSets.find((set) => Number(set.week) === activeWeek + 1) : null;
+      if (nextWeekSet) {
+        nextWeekBtn.classList.remove('hidden');
+        nextWeekBtn.textContent = `Next Week Quiz (${nextWeekSet.week})`;
+      } else {
+        nextWeekBtn.classList.add('hidden');
+      }
     }
 
     function restartCurrent() {
@@ -1211,10 +1226,18 @@
       finishQuiz();
     }
 
+    function startNextWeekQuiz() {
+      if (!activeWeek) return;
+      const nextWeekSet = normalizedSets.find((set) => Number(set.week) === activeWeek + 1);
+      if (!nextWeekSet) return;
+      startQuiz(nextWeekSet.items, `Week ${nextWeekSet.week} - ${nextWeekSet.title}`);
+    }
+
     document.getElementById('next-btn').addEventListener('click', nextQuestion);
     document.getElementById('prev-btn').addEventListener('click', prevQuestion);
     document.getElementById('submit-btn').addEventListener('click', submitQuiz);
     document.getElementById('exit-btn').addEventListener('click', exitCurrentQuiz);
+    document.getElementById('next-week-btn').addEventListener('click', startNextWeekQuiz);
     document.getElementById('restart-btn').addEventListener('click', restartCurrent);
     document.getElementById('back-btn').addEventListener('click', showIntro);
 
