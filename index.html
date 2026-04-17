@@ -599,6 +599,50 @@
       border-bottom-color: rgba(55, 211, 160, 0.6);
     }
 
+    .confirm-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: rgba(6, 11, 20, 0.7);
+      backdrop-filter: blur(6px);
+      z-index: 40;
+    }
+
+    .confirm-overlay.active {
+      display: flex;
+    }
+
+    .confirm-modal {
+      width: min(460px, 100%);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(20, 31, 53, 0.96), rgba(11, 18, 32, 0.96));
+      box-shadow: var(--shadow);
+      padding: 1rem;
+    }
+
+    .confirm-modal h3 {
+      margin: 0 0 0.45rem;
+      letter-spacing: -0.02em;
+    }
+
+    .confirm-modal p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 0.7rem;
+      justify-content: flex-end;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
     @keyframes rise {
       from { opacity: 0; transform: translateY(14px); }
       to { opacity: 1; transform: translateY(0); }
@@ -700,6 +744,17 @@
 
     <p class="footer-note">made with 💖 by <a href="https://www.instagram.com/fx.nihan" target="_blank" rel="noopener noreferrer">niggaaan</a></p>
   </main>
+
+  <div class="confirm-overlay" id="confirm-overlay" aria-hidden="true">
+    <div class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+      <h3 id="confirm-title">Please confirm</h3>
+      <p id="confirm-message">Are you sure?</p>
+      <div class="confirm-actions">
+        <button class="btn" id="confirm-cancel-btn" type="button">Cancel</button>
+        <button class="btn primary" id="confirm-ok-btn" type="button">Continue</button>
+      </div>
+    </div>
+  </div>
 
   <script src="Questions/questions-data.js"></script>
   <script>
@@ -829,6 +884,10 @@
     const resultScore = document.getElementById('result-score');
     const resultTitle = document.getElementById('result-title');
     const resultSubtitle = document.getElementById('result-subtitle');
+    const confirmOverlay = document.getElementById('confirm-overlay');
+    const confirmMessage = document.getElementById('confirm-message');
+    const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+    const confirmOkBtn = document.getElementById('confirm-ok-btn');
     const nextWeekBtn = document.getElementById('next-week-btn');
     const restartBtn = document.getElementById('restart-btn');
     const backBtn = document.getElementById('back-btn');
@@ -845,6 +904,7 @@
     let questionStates = [];
     let selectedAnswers = [];
     let questionOutcomes = [];
+    let confirmAction = null;
 
     function cleanText(value) {
       return String(value || '').replace(/\s+/g, ' ').trim();
@@ -1203,27 +1263,40 @@
       }
     }
 
+    function openConfirmDialog(message, onConfirm) {
+      confirmAction = onConfirm;
+      confirmMessage.textContent = message;
+      confirmOverlay.classList.add('active');
+      confirmOverlay.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeConfirmDialog() {
+      confirmOverlay.classList.remove('active');
+      confirmOverlay.setAttribute('aria-hidden', 'true');
+      confirmAction = null;
+    }
+
     function restartCurrent() {
       startQuiz(activeSet, activeLabel);
     }
 
     function exitCurrentQuiz() {
-      const shouldExit = window.confirm('Exit the current quiz? Your current progress will be lost.');
-      if (!shouldExit) return;
-      activeSet = [];
-      activeLabel = 'Full Quiz';
-      currentIndex = 0;
-      score = 0;
-      attempted = 0;
-      locked = false;
-      selectedOption = null;
-      showIntro();
+      openConfirmDialog('Exit the current quiz? Your current progress will be lost.', () => {
+        activeSet = [];
+        activeLabel = 'Full Quiz';
+        currentIndex = 0;
+        score = 0;
+        attempted = 0;
+        locked = false;
+        selectedOption = null;
+        showIntro();
+      });
     }
 
     function submitQuiz() {
-      const shouldSubmit = window.confirm('Submit the quiz now and end this attempt?');
-      if (!shouldSubmit) return;
-      finishQuiz();
+      openConfirmDialog('Submit the quiz now and end this attempt?', () => {
+        finishQuiz();
+      });
     }
 
     function startNextWeekQuiz() {
@@ -1240,6 +1313,15 @@
     document.getElementById('next-week-btn').addEventListener('click', startNextWeekQuiz);
     document.getElementById('restart-btn').addEventListener('click', restartCurrent);
     document.getElementById('back-btn').addEventListener('click', showIntro);
+    document.getElementById('confirm-cancel-btn').addEventListener('click', closeConfirmDialog);
+    document.getElementById('confirm-ok-btn').addEventListener('click', () => {
+      const action = confirmAction;
+      closeConfirmDialog();
+      if (action) action();
+    });
+    document.getElementById('confirm-overlay').addEventListener('click', (event) => {
+      if (event.target === confirmOverlay) closeConfirmDialog();
+    });
 
     buildQuizSets();
     renderStats();
