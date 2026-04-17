@@ -1105,7 +1105,7 @@
       const alreadyAnswered = questionStates[currentIndex] === 'answered';
       locked = alreadyAnswered;
       selectedOption = selectedAnswers[currentIndex];
-      nextBtn.disabled = currentIndex + 1 >= activeSet.length;
+      nextBtn.disabled = false;
       submitBtn.disabled = false;
       feedbackBanner.className = 'feedback-banner';
       feedbackBanner.textContent = '';
@@ -1232,6 +1232,7 @@
 
     function nextQuestion() {
       if (currentIndex + 1 >= activeSet.length) {
+        submitQuiz();
         return;
       }
       currentIndex += 1;
